@@ -4,10 +4,10 @@ import struct
 import asyncio
 import platform
 import functools
-import Mumble_pb2
 import collections
 
-from constants import MESSAGE_TYPES
+from . import Mumble_pb2
+from .constants import MESSAGE_TYPES
 
 
 class Client:
