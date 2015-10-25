@@ -11,7 +11,7 @@ A Mumble client library for Python 3.5
 Initialize your client:
 
     import hiss
-    client = hiss.Client('mumble-server.com')
+    client = hiss.Client('mumble.party')
 
 Define what you want it to do and when:
 
