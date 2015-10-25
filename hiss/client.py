@@ -11,7 +11,6 @@ from .constants import MESSAGE_TYPES
 
 
 class Client:
-
     version = (1, 3, 0)
 
     def __init__(self, host, port=64738, username='snek', password=None):
@@ -30,12 +29,17 @@ class Client:
         loop.run_forever()
 
     def bind(self, message_type):
+        """ Decorator to bind methods to Mumble events (see `constants.MESSAGE_TYPES`) """
+
         def wrapper(function):
             self._callbacks[message_type].append(function)
             return function
+
         return wrapper
 
     def bind_command(self, command):
+        """ Decorator to bind methods to text messages starting with the given `command`. """
+
         def wrapper(function):
             @functools.wraps(function)
             def decorator(message):
@@ -45,9 +49,11 @@ class Client:
             self._callbacks['TextMessage'].append(decorator)
 
             return decorator
+
         return wrapper
 
     async def _send(self, message):
+        """ Send a message to the server. `message` is a pprotobuf object from the `Mumble_pb2` module. """
         message_type = MESSAGE_TYPES[message.__class__.__name__]
         body = message.SerializeToString()
         header = struct.pack('>HI', message_type, len(body))
@@ -56,7 +62,7 @@ class Client:
 
     async def connect(self):
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        self._reader, self._writer = await asyncio.open_connection(self.host, self. port, ssl=ssl_context)
+        self._reader, self._writer = await asyncio.open_connection(self.host, self.port, ssl=ssl_context)
 
         await self.exchange_version()
         await self.authenticate()
@@ -101,5 +107,6 @@ class Client:
             body = await self._reader.readexactly(body_length)
             message = getattr(Mumble_pb2, message_type)()
             message.ParseFromString(body)
+
             for callback in self._callbacks[message_type]:
                 callback(message)
