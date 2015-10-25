@@ -8,6 +8,7 @@ import collections
 
 from . import Mumble_pb2
 from .constants import MESSAGE_TYPES
+from .channel import Channel
 
 
 class Client:
@@ -21,6 +22,11 @@ class Client:
         self._reader = None
         self._writer = None
         self._callbacks = collections.defaultdict(list)
+
+        # Server state
+        self.channels = {}
+        # self.users = {}
+        self.bind_state_tracking()
 
     def run(self):
         loop = asyncio.get_event_loop()
@@ -110,3 +116,19 @@ class Client:
 
             for callback in self._callbacks[message_type]:
                 callback(message)
+
+    def update_channel_state(self, message):
+        """ Keep track of channel states """
+
+        channel_id = message.channel_id
+        channel = self.channels.get(channel_id)
+        if channel is None:
+            channel = Channel(self)
+            self.channels[channel_id] = channel
+
+        channel.update(message)
+
+    def bind_state_tracking(self):
+        """ Bind any internal state tracking methods to their associated events """
+
+        self._callbacks['ChannelState'].append(self.update_channel_state)
