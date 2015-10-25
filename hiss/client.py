@@ -60,6 +60,7 @@ class Client:
 
         await self.exchange_version()
         await self.authenticate()
+        await self.keep_alive()
 
     async def exchange_version(self):
         message = Mumble_pb2.Version()
@@ -76,7 +77,7 @@ class Client:
             message.password = self.password
         await self._send(message)
 
-    async def send_pings(self):
+    async def keep_alive(self):
         message = Mumble_pb2.Ping()
         message.timestamp = int(time.time())
         while True:
