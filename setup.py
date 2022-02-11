@@ -17,7 +17,7 @@ setup(
     packages=['hiss'],
     include_package_data=True,
     install_requires=[
-        'protobuf==3.0.0a3',
+        'protobuf==3.15.0',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
